@@ -1,36 +1,99 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📈 IDX Market Heatmap & Terminal
 
-## Getting Started
+Aplikasi web visualisasi saham Indonesia (_Indonesia Stock Exchange / IDX_) bergaya **High-Density Grid Terminal** ala TradingView dan Finviz. Dirancang dengan pendekatan _Clean Architecture_, antarmuka minimalis, serta performa tinggi untuk memantau pergerakan pasar saham secara _real-time_.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## ✨ Fitur Utama
+
+- **🔥 200+ Saham IDX Bersih & Terverifikasi**: Mencakup seluruh saham _blue chip_, sektor perbankan, energi, teknologi, konsumer, hingga properti tanpa duplikasi data.
+- **⚡ Filter Cepat & Pengurutan Presisi**:
+  - **Quick Filters**: `🔥 Top Gainers`, `❄️ Top Losers`, `⚡ Most Active`, `⭐ Pilihan Editor`, serta filter berbasis Sektor.
+  - **Sorting**: Pengurutan berdasarkan _Market Capitalization_, _% Perubahan Harga_, dan _Volume Transaksi_.
+- **📊 Halaman Detail Saham Mendalam (`/stock/[symbol]`)**:
+  - **Grafik Interaktif TradingView**: Grafik _Candlestick real-time_ dengan kontrol rentang waktu penuh.
+  - **Metrik Utama dengan Tooltip**: Informasi _Market Cap_, _P/E Ratio_, _52W High/Low_, _Dividend Yield_, _Karyawan_, dan _Beta_ dilengkapi penjelasan edukatif saat di-_hover_.
+  - **Profil Perusahaan**: Deskripsi lengkap bisnis, informasi bursa, serta tautan langsung ke situs resmi emiten.
+- **🎨 Design & UI/UX Superior**:
+  - **Dark Mode Modern**: Visualisasi warna kontras lembut (Hijau/Merah/Spiritual Dark Neutral) yang nyaman di mata untuk penggunaan durasi panjang (_desktop setup / multi-monitor_).
+  - **Fully Responsive**: Tampilan optimal di perangkat mobile, tablet, hingga layar desktop lebar.
+- **ℹ️ Halaman Informasi Khusus (`/about`)**: Memuat rincian arsitektur teknologi, profil pengembang, sumber data, serta tautan dukungan (_Saweria / Traktir Kopi_).
+
+---
+
+## 🛠️ Stack Teknologi
+
+- **Framework**: [Next.js 16](https://nextjs.org/) (App Router, Turbopack, React Server Components)
+- **Bahasa Pemrograman**: [TypeScript](https://www.typescriptlang.org/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Data Provider**: `yahoo-finance2` (Yahoo Finance API Integrator)
+- **Chart Component**: [TradingView Advanced Chart Widget](https://www.tradingview.com/)
+- **Deployment & Hosting**: [Vercel](https://vercel.com/)
+
+---
+
+## 📁 Struktur Proyek (Clean Architecture)
+
+```text
+idx-heatmap/
+├── src/
+│   ├── app/
+│   │   ├── about/
+│   │   │   └── page.tsx              # Halaman About / Profil Pengembang
+│   │   ├── api/
+│   │   │   └── stocks/               # API Routes untuk fetching data Yahoo Finance
+│   │   │       ├── route.ts
+│   │   │       └── [symbol]/
+│   │   │           └── route.ts
+│   │   ├── stock/
+│   │   │   └── [symbol]/
+│   │   │       └── page.tsx          # Dynamic Route Detail Saham (Server Component)
+│   │   ├── layout.tsx
+│   │   └── page.tsx                  # Halaman Utama Heatmap Grid
+│   ├── components/
+│   │   ├── Footer.tsx                # Komponen Footer Elegan & Navigasi
+│   │   ├── StockCard.tsx             # Komponen Kartu Saham Grid
+│   │   ├── StockChart.tsx            # Embed TradingView Chart Widget
+│   │   └── StockDetailClient.tsx     # Komponen Client Detail Saham
+│   ├── types/
+│   │   └── stock.ts                  # Definisi Antarmuka TypeScript
+│   └── utils/
+│       └── formatters.ts             # Utility Konversi Warna & Mata Uang
+├── public/
+├── package.json
+├── tsconfig.json
+└── README.md
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+🚀 Panduan Memulai (Local Development)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Prasyarat
+   Pastikan Anda sudah menginstal Node.js (versi 18.x atau lebih baru) dan npm.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. Kloning Repositori
+   Bash
+   git clone [https://github.com/username-anda/idx-heatmap.git](https://github.com/username-anda/idx-heatmap.git)
+   cd idx-heatmap
+3. Instal Dependensi
+   Bash
+   npm install
+4. Jalankan Server Pengembang
+   Bash
+   npm run dev
+   Buka browser dan akses http://localhost:3000 untuk melihat aplikasi.
 
-## Learn More
+5. Build untuk Produksi
+   Bash
+   npm run build
+   npm run start
+   ☕ Dukungan & Kontribusi
+   Proyek ini dibangun secara terbuka. Jika Anda menyukai aplikasi ini atau ingin mendukung pengembangannya, Anda dapat memberikan apresiasi melalui:
 
-To learn more about Next.js, take a look at the following resources:
+🌟 Star repositori ini di GitHub
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+☕ Traktir kopi via Saweria
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+⚖️ Penafian (Disclaimer)
+Data finansial dalam aplikasi ini diperoleh secara real-time melalui Yahoo Finance API dan diperuntukkan sebagai alat bantu visualisasi informasi semata. Seluruh informasi di dalamnya bukan merupakan ajakan, rekomendasi, atau panduan mutlak untuk membeli atau menjual saham tertentu (Disclaimer On).
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
