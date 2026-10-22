@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { StockDetail } from "@/types/stock";
-import Footer from "@/components/Footer";
 import StockChart from "@/components/StockChart";
 
 interface StockDetailClientProps {
@@ -37,7 +36,7 @@ export default function StockDetailClient({ symbol }: StockDetailClientProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-950 text-white flex items-center justify-center">
+      <div className="min-h-screen bg-neutral-950 text-white flex items-center justify-center font-sans">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
           <p className="text-sm text-neutral-400">Memuat profil & analisis {symbol.toUpperCase()}...</p>
@@ -48,10 +47,10 @@ export default function StockDetailClient({ symbol }: StockDetailClientProps) {
 
   if (error || !stock) {
     return (
-      <div className="min-h-screen bg-neutral-950 text-white flex flex-col items-center justify-center p-6 text-center">
+      <div className="min-h-screen bg-neutral-950 text-white flex flex-col items-center justify-center p-6 text-center font-sans">
         <h1 className="text-xl font-bold text-rose-500 mb-2">Saham Tidak Ditemukan</h1>
         <p className="text-sm text-neutral-400 mb-6">{error || `Data untuk simbol ${symbol.toUpperCase()} tidak tersedia.`}</p>
-        <Link href="/" className="bg-emerald-500 text-neutral-950 font-bold px-4 py-2 rounded-lg text-sm">
+        <Link href="/" className="bg-emerald-500 text-neutral-950 font-bold px-4 py-2 rounded-lg text-sm transition hover:bg-emerald-400">
           Kembali ke Heatmap
         </Link>
       </div>
@@ -60,7 +59,7 @@ export default function StockDetailClient({ symbol }: StockDetailClientProps) {
 
   const isPositive = stock.change >= 0;
 
-  // Formatter Konsensus Analis
+  // Formatter Konsensus Analis Berwarna
   const getRecommendationBadge = (key?: string) => {
     switch (key?.toLowerCase()) {
       case "buy":
@@ -84,10 +83,10 @@ export default function StockDetailClient({ symbol }: StockDetailClientProps) {
   const upsidePotential = stock.targetMeanPrice && stock.price > 0 ? (((stock.targetMeanPrice - stock.price) / stock.price) * 100).toFixed(1) : null;
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-white flex flex-col justify-between font-sans selection:bg-emerald-500 selection:text-neutral-950">
+    <div className="flex flex-col flex-1 w-full bg-neutral-950 text-white font-sans selection:bg-emerald-500 selection:text-neutral-950">
       <main className="flex-1">
-        {/* Header Nav */}
-        <header className="border-b border-neutral-800 bg-neutral-900/90 backdrop-blur px-6 py-4 flex items-center justify-between sticky top-0 z-20">
+        {/* Header Navigasi Sub-Bar */}
+        <header className="border-b border-neutral-800 bg-neutral-900/90 backdrop-blur px-6 py-3.5 flex items-center justify-between sticky top-14 z-30">
           <Link href="/" className="bg-neutral-800 hover:bg-neutral-700 text-neutral-300 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
             ← Kembali ke Heatmap
           </Link>
@@ -108,9 +107,9 @@ export default function StockDetailClient({ symbol }: StockDetailClientProps) {
                 {stock.sector && <span className="text-xs bg-neutral-800 text-neutral-300 px-2.5 py-1 rounded-md border border-neutral-700">{stock.sector}</span>}
               </div>
               <h1 className="text-base md:text-lg text-neutral-300 font-medium">{stock.name}</h1>
-              <p className="text-xs text-neutral-500">
-                Industri: <span className="text-neutral-300">{stock.industry}</span> | Lokasi:{" "}
-                <span className="text-neutral-300">
+              <p className="text-xs text-neutral-400">
+                Industri: <span className="text-neutral-200">{stock.industry}</span> | Lokasi:{" "}
+                <span className="text-neutral-200">
                   {stock.city ? `${stock.city}, ` : ""}
                   {stock.country}
                 </span>
@@ -120,17 +119,17 @@ export default function StockDetailClient({ symbol }: StockDetailClientProps) {
             <div className="text-left lg:text-right bg-neutral-950/60 p-4 rounded-xl border border-neutral-800 w-full lg:w-auto">
               <p className="text-xs text-neutral-400 mb-1">Harga Saat Ini</p>
               <p className="text-3xl md:text-4xl font-extrabold text-white">Rp {stock.price.toLocaleString("id-ID")}</p>
-              <p className="text-xs text-neutral-500 mt-1">Volume: {(stock.volume / 1000000).toFixed(2)} Juta Lembar</p>
+              <p className="text-xs text-neutral-400 mt-1">Volume: {(stock.volume / 1000000).toFixed(2)} Juta Lembar</p>
             </div>
           </div>
 
-          {/* Key Metrics Grid (Dengan Tooltip Penjelasan Edukatif) */}
+          {/* Key Metrics Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {/* Market Cap */}
             <div className="relative group bg-neutral-900 border border-neutral-800 rounded-xl p-4 flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-neutral-400">Market Cap</span>
-                <span className="text-[10px] text-neutral-500 hover:text-emerald-400 cursor-help font-mono w-4 h-4 rounded-full bg-neutral-800 flex items-center justify-center border border-neutral-700">?</span>
+                <span className="text-[10px] text-neutral-400 hover:text-emerald-400 cursor-help font-mono w-4 h-4 rounded-full bg-neutral-800 flex items-center justify-center border border-neutral-700">?</span>
               </div>
               <span className="text-sm font-bold mt-2 truncate text-white">Rp {(stock.marketCap / 1e9).toLocaleString("id-ID", { maximumFractionDigits: 1 })} Miliar</span>
               <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block w-52 p-2.5 bg-neutral-950/95 border border-neutral-700/80 rounded-xl shadow-2xl backdrop-blur-md z-30 text-[10px] text-neutral-300 leading-snug">
@@ -143,7 +142,7 @@ export default function StockDetailClient({ symbol }: StockDetailClientProps) {
             <div className="relative group bg-neutral-900 border border-neutral-800 rounded-xl p-4 flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-neutral-400">P/E Ratio</span>
-                <span className="text-[10px] text-neutral-500 hover:text-emerald-400 cursor-help font-mono w-4 h-4 rounded-full bg-neutral-800 flex items-center justify-center border border-neutral-700">?</span>
+                <span className="text-[10px] text-neutral-400 hover:text-emerald-400 cursor-help font-mono w-4 h-4 rounded-full bg-neutral-800 flex items-center justify-center border border-neutral-700">?</span>
               </div>
               <span className="text-sm font-bold mt-2 text-white">{stock.trailingPE ? stock.trailingPE.toFixed(2) : "N/A"}</span>
               <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block w-52 p-2.5 bg-neutral-950/95 border border-neutral-700/80 rounded-xl shadow-2xl backdrop-blur-md z-30 text-[10px] text-neutral-300 leading-snug">
@@ -156,7 +155,7 @@ export default function StockDetailClient({ symbol }: StockDetailClientProps) {
             <div className="relative group bg-neutral-900 border border-neutral-800 rounded-xl p-4 flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-neutral-400">PBV</span>
-                <span className="text-[10px] text-neutral-500 hover:text-emerald-400 cursor-help font-mono w-4 h-4 rounded-full bg-neutral-800 flex items-center justify-center border border-neutral-700">?</span>
+                <span className="text-[10px] text-neutral-400 hover:text-emerald-400 cursor-help font-mono w-4 h-4 rounded-full bg-neutral-800 flex items-center justify-center border border-neutral-700">?</span>
               </div>
               <span className="text-sm font-bold mt-2 text-white">{stock.priceToBook ? stock.priceToBook.toFixed(2) : "N/A"}</span>
               <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block w-52 p-2.5 bg-neutral-950/95 border border-neutral-700/80 rounded-xl shadow-2xl backdrop-blur-md z-30 text-[10px] text-neutral-300 leading-snug">
@@ -169,7 +168,7 @@ export default function StockDetailClient({ symbol }: StockDetailClientProps) {
             <div className="relative group bg-neutral-900 border border-neutral-800 rounded-xl p-4 flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-neutral-400">52W High</span>
-                <span className="text-[10px] text-neutral-500 hover:text-emerald-400 cursor-help font-mono w-4 h-4 rounded-full bg-neutral-800 flex items-center justify-center border border-neutral-700">?</span>
+                <span className="text-[10px] text-neutral-400 hover:text-emerald-400 cursor-help font-mono w-4 h-4 rounded-full bg-neutral-800 flex items-center justify-center border border-neutral-700">?</span>
               </div>
               <span className="text-sm font-bold mt-2 text-emerald-400">Rp {stock.fiftyTwoWeekHigh ? stock.fiftyTwoWeekHigh.toLocaleString("id-ID") : "N/A"}</span>
               <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block w-52 p-2.5 bg-neutral-950/95 border border-neutral-700/80 rounded-xl shadow-2xl backdrop-blur-md z-30 text-[10px] text-neutral-300 leading-snug">
@@ -182,7 +181,7 @@ export default function StockDetailClient({ symbol }: StockDetailClientProps) {
             <div className="relative group bg-neutral-900 border border-neutral-800 rounded-xl p-4 flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-neutral-400">52W Low</span>
-                <span className="text-[10px] text-neutral-500 hover:text-emerald-400 cursor-help font-mono w-4 h-4 rounded-full bg-neutral-800 flex items-center justify-center border border-neutral-700">?</span>
+                <span className="text-[10px] text-neutral-400 hover:text-emerald-400 cursor-help font-mono w-4 h-4 rounded-full bg-neutral-800 flex items-center justify-center border border-neutral-700">?</span>
               </div>
               <span className="text-sm font-bold mt-2 text-rose-400">Rp {stock.fiftyTwoWeekLow ? stock.fiftyTwoWeekLow.toLocaleString("id-ID") : "N/A"}</span>
               <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block w-52 p-2.5 bg-neutral-950/95 border border-neutral-700/80 rounded-xl shadow-2xl backdrop-blur-md z-30 text-[10px] text-neutral-300 leading-snug">
@@ -195,7 +194,7 @@ export default function StockDetailClient({ symbol }: StockDetailClientProps) {
             <div className="relative group bg-neutral-900 border border-neutral-800 rounded-xl p-4 flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-neutral-400">Dividend Yield</span>
-                <span className="text-[10px] text-neutral-500 hover:text-emerald-400 cursor-help font-mono w-4 h-4 rounded-full bg-neutral-800 flex items-center justify-center border border-neutral-700">?</span>
+                <span className="text-[10px] text-neutral-400 hover:text-emerald-400 cursor-help font-mono w-4 h-4 rounded-full bg-neutral-800 flex items-center justify-center border border-neutral-700">?</span>
               </div>
               <span className="text-sm font-bold mt-2 text-white">{stock.dividendYield ? `${(stock.dividendYield * 100).toFixed(2)}%` : "N/A"}</span>
               <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block w-52 p-2.5 bg-neutral-950/95 border border-neutral-700/80 rounded-xl shadow-2xl backdrop-blur-md z-30 text-[10px] text-neutral-300 leading-snug">
@@ -228,13 +227,11 @@ export default function StockDetailClient({ symbol }: StockDetailClientProps) {
                         !
                       </button>
 
-                      {/* Popover Bubble Tooltip */}
                       <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover/tooltip:block w-64 p-3 bg-neutral-950/95 border border-neutral-700/80 rounded-xl shadow-2xl backdrop-blur-md z-30 text-[11px] leading-snug text-neutral-300">
                         <p className="font-semibold text-amber-400 mb-1 flex items-center gap-1">
                           <span>⚠️</span> Disclaimer Finansial
                         </p>
                         <p className="text-neutral-400 text-[10px]">Data disarikan secara otomatis dari agregator finansial murni untuk referensi analitis dan edukasi, bukan merupakan rekomendasi atau ajakan jual-beli efek.</p>
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-neutral-950/95"></div>
                       </div>
                     </div>
                   </div>
@@ -259,7 +256,7 @@ export default function StockDetailClient({ symbol }: StockDetailClientProps) {
                       )}
                     </div>
                     {stock.targetHighPrice && stock.targetLowPrice && (
-                      <div className="flex justify-between text-[10px] text-neutral-500 pt-1 border-t border-neutral-800/80 mt-2">
+                      <div className="flex justify-between text-[10px] text-neutral-400 pt-1 border-t border-neutral-800/80 mt-2">
                         <span>Low: Rp {stock.targetLowPrice.toLocaleString("id-ID")}</span>
                         <span>High: Rp {stock.targetHighPrice.toLocaleString("id-ID")}</span>
                       </div>
@@ -269,7 +266,7 @@ export default function StockDetailClient({ symbol }: StockDetailClientProps) {
               </div>
             </div>
 
-            {/* Breakdown Visualisasi Suara Analis */}
+            {/* Breakdown Visualisasi Suara Analis Berwarna */}
             <div className="lg:w-2/3 flex flex-col justify-center gap-3">
               <span className="text-xs font-semibold text-neutral-300">Sebaran Rekomendasi Analis:</span>
 
@@ -338,7 +335,7 @@ export default function StockDetailClient({ symbol }: StockDetailClientProps) {
                     className="group bg-neutral-950/60 border border-neutral-800 hover:border-emerald-500/50 p-4 rounded-xl flex flex-col justify-between transition hover:-translate-y-0.5 shadow"
                   >
                     <div className="space-y-2">
-                      <div className="flex justify-between items-center text-[10px] text-neutral-500 font-mono">
+                      <div className="flex justify-between items-center text-[10px] text-neutral-400 font-mono">
                         <span className="bg-neutral-800 text-emerald-400 px-2 py-0.5 rounded font-bold">{item.source}</span>
                         <span>{item.pubDate}</span>
                       </div>
@@ -404,8 +401,6 @@ export default function StockDetailClient({ symbol }: StockDetailClientProps) {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

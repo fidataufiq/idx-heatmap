@@ -23,6 +23,13 @@ export async function GET() {
             volume: quote?.regularMarketVolume || 0,
             sector: getSectorBySymbol(symbol),
             isEditorPick: EDITOR_PICKS.includes(symbol),
+
+            // --- Atribut Tambahan untuk Stock Screener Cerdas ---
+            trailingPE: quote?.trailingPE ?? null,
+            priceToBook: quote?.priceToBook ?? null,
+            dividendYield: quote?.dividendYield ?? 0,
+            fiftyTwoWeekHigh: quote?.fiftyTwoWeekHigh ?? null,
+            fiftyTwoWeekLow: quote?.fiftyTwoWeekLow ?? null,
           };
         } catch {
           return null;

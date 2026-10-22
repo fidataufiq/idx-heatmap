@@ -1,125 +1,142 @@
 import Link from "next/link";
-import Footer from "@/components/Footer";
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-neutral-950 text-white flex flex-col justify-between font-sans selection:bg-emerald-500 selection:text-neutral-950">
-      {/* Header Navigation */}
-      <header className="border-b border-neutral-800 bg-neutral-900/90 backdrop-blur px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="bg-neutral-800 hover:bg-neutral-700 text-neutral-300 px-3 py-1.5 rounded-lg text-xs font-semibold transition">
+    <div className="flex flex-col flex-1 w-full bg-neutral-950 text-white font-mono selection:bg-neutral-800 selection:text-white">
+      {/* Sub-Header Navigasi Sticky (Menempel di bawah Header Global) */}
+      <div className="sticky top-12 z-40 border-b border-neutral-800 bg-neutral-950 px-3 sm:px-4 py-2 flex items-center justify-between">
+        <Link href="/" className="text-neutral-400 hover:text-white text-xs transition flex items-center gap-1.5">
           ← Kembali ke Heatmap
         </Link>
-        <div className="text-xs text-neutral-400 bg-neutral-800/80 px-3 py-1 rounded-full border border-neutral-700">Tentang Proyek & Pengembang</div>
-      </header>
+        <div className="text-[10px] text-neutral-400 bg-neutral-900 px-2.5 py-0.5 rounded border border-neutral-800">Tentang Proyek & Sistem</div>
+      </div>
 
-      {/* Main Content Container */}
-      <main className="max-w-4xl w-full mx-auto p-6 md:p-10 flex flex-col gap-10 flex-1">
-        {/* Title / Hero */}
-        <div className="border-b border-neutral-800 pb-8">
-          <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold px-3 py-1 rounded-full mb-3">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            IDX Market Heatmap Terminal
+      {/* Main Content Area */}
+      <main className="w-full px-3 sm:px-4 py-6 md:py-8 flex-1 flex flex-col gap-6">
+        {/* Visual Hero Section dengan Logo Glow Animasi */}
+        <div className="relative overflow-hidden bg-neutral-900/50 border border-neutral-800 rounded-xl p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          {/* Latar Belakang Decorative Grid Lines */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#262626_1px,transparent_1px),linear-gradient(to_bottom,#262626_1px,transparent_1px)] bg-[size:2rem_2rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20 pointer-events-none"></div>
+
+          <div className="relative z-10 max-w-2xl space-y-3">
+            <div className="inline-flex items-center gap-2 bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              IDX Market Heatmap Terminal
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">Sistem Visualisasi Saham Real-Time</h1>
+            <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed font-sans">
+              MapIDX adalah terminal analitik saham Indonesia berbasis web dengan antarmuka <span className="text-white font-mono font-semibold">High-Density Grid</span>. Dirancang untuk memberikan proyeksi pergerakan pasar saham secara
+              instan, intuitif, dan responsif dalam satu panel layar tanpa hambatan.
+            </p>
           </div>
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-3">Tentang Aplikasi</h1>
-          <p className="text-sm md:text-base text-neutral-400 leading-relaxed max-w-2xl">
-            Aplikasi heatmap saham Indonesia berbasis web dengan tampilan *High-Density Grid* ala TradingView, dirancang untuk memberikan gambaran cepat pergerakan pasar saham IDX secara real-time, intuitif, dan responsif.
-          </p>
+
+          {/* Logo Badge Card dengan Animasi Pulse Glow */}
+          <div className="relative shrink-0 self-center md:self-auto">
+            <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 blur-lg opacity-75 animate-pulse"></div>
+            <div className="relative h-24 w-24 sm:h-28 sm:w-28 bg-neutral-950 border border-neutral-800 rounded-2xl flex flex-col items-center justify-center gap-1 shadow-2xl">
+              <div className="h-9 w-9 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center font-black text-sm shadow-sm">IDX</div>
+              <span className="font-bold text-xs text-white tracking-wider mt-1">
+                Map<span className="text-emerald-500">IDX</span>
+              </span>
+              <span className="text-[8px] text-neutral-500">v1.0.0 PRO</span>
+            </div>
+          </div>
         </div>
 
         {/* Section: Pengembang & Inspirasi */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Card: Pengembang & Misi */}
+          <div className="bg-neutral-900/40 border border-neutral-800 rounded-xl p-5 flex flex-col justify-between hover:border-neutral-700 transition">
             <div>
-              <h2 className="text-base font-bold text-white mb-3 flex items-center gap-2">
-                <span>👨‍💻</span> Pengembang & Misi
+              <h2 className="text-xs font-bold text-white mb-2 flex items-center gap-2 uppercase tracking-wider">
+                <span className="text-emerald-400">⚡</span> Misi Pengembangan
               </h2>
-              <p className="text-xs md:text-sm text-neutral-300 leading-relaxed">
-                Dikembangkan secara independen dengan fokus pada penyajian data finansial yang bersih, modern, dan bebas hambatan (*frictionless*). Misi utama proyek ini adalah menyediakan terminal analisis saham yang visual dan mudah
-                diakses bagi investor serta trader ritel Indonesia.
+              <p className="text-xs text-neutral-300 leading-relaxed font-sans">
+                Dikembangkan secara independen dengan fokus pada penyajian data finansial yang bersih, ultra-cepat, dan terstruktur. Misi utama proyek ini adalah menghadirkan terminal visualisasi pasar saham yang dapat diakses dengan mudah
+                oleh investor dan trader ritel Indonesia.
               </p>
             </div>
-            <div className="mt-6 pt-4 border-t border-neutral-800/80 flex items-center gap-3">
+
+            <div className="mt-5 pt-4 border-t border-neutral-800/80 flex items-center gap-2">
               <a
                 href="https://github.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-neutral-800 hover:bg-neutral-700 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition flex items-center gap-2 border border-neutral-700"
+                className="bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white text-[11px] font-bold px-3 py-1.5 rounded border border-neutral-800 transition flex items-center gap-1.5"
               >
-                <span>GitHub Repository</span> ↗
+                <span>GitHub</span> ↗
               </a>
               <a
                 href="https://saweria.co"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-semibold px-3.5 py-2 rounded-xl transition flex items-center gap-2"
+                className="bg-emerald-950/40 hover:bg-emerald-950/60 text-emerald-400 border border-emerald-500/30 text-[11px] font-bold px-3 py-1.5 rounded transition flex items-center gap-1.5"
               >
-                <span>☕ Traktir Kopi</span>
+                <span>☕ Dukung Proyek</span>
               </a>
             </div>
           </div>
 
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+          {/* Card: Inspirasi UI */}
+          <div className="bg-neutral-900/40 border border-neutral-800 rounded-xl p-5 flex flex-col justify-between hover:border-neutral-700 transition">
             <div>
-              <h2 className="text-base font-bold text-white mb-3 flex items-center gap-2">
-                <span>💡</span> Inspirasi Rancang Bangun
+              <h2 className="text-xs font-bold text-white mb-2 flex items-center gap-2 uppercase tracking-wider">
+                <span className="text-emerald-400">💡</span> Filosofi Desain
               </h2>
-              <p className="text-xs md:text-sm text-neutral-300 leading-relaxed">
-                Terinspirasi langsung oleh antarmuka antarbangsa **TradingView Stock Heatmap** dan **Finviz Market Map**, digabungkan dengan tren desain dark-mode modern, minimalis, serta penataan metrik keuangan ala terminal finansial
-                profesional.
+              <p className="text-xs text-neutral-300 leading-relaxed font-sans">
+                Terinspirasi oleh antarmuka finansial terkemuka dunia seperti <span className="text-white font-mono">TradingView Stock Heatmap</span> dan <span className="text-white font-mono">Finviz Market Map</span>. Mengadopsi bahasa
+                desain <span className="text-white font-mono">Vercel Monochrome Precision</span> dengan kontras tajam, bebas ornamen berlebihan, dan responsif di semua perangkat.
               </p>
             </div>
-            <div className="mt-6 pt-4 border-t border-neutral-800/80 text-[11px] text-neutral-500">Desain mengutamakan efisiensi satu layar (*single-viewport density*) dan kecepatan muat data.</div>
+            <div className="mt-5 pt-4 border-t border-neutral-800/80 text-[10px] text-neutral-500">Optimalisasi kepadatan satu layar (*single-viewport high density*).</div>
           </div>
         </div>
 
-        {/* Section: Teknologi & Stack */}
-        <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 md:p-8 shadow-xl">
-          <h2 className="text-base font-bold text-white mb-6 border-b border-neutral-800 pb-3 flex items-center gap-2">
-            <span>⚙️</span> Arsitektur & Teknologi Terkait
+        {/* Section: Arsitektur & Teknologi */}
+        <div className="bg-neutral-900/40 border border-neutral-800 rounded-xl p-5 sm:p-6 space-y-4">
+          <h2 className="text-xs font-bold text-white border-b border-neutral-800 pb-2.5 flex items-center gap-2 uppercase tracking-wider">
+            <span className="text-emerald-400">⚙️</span> Arsitektur & Perangkat Lunak
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="p-4 bg-neutral-950/60 border border-neutral-800/80 rounded-xl">
-              <div className="text-xs font-bold text-emerald-400 mb-1">Framework & Runtime</div>
-              <div className="text-sm font-semibold text-white">Next.js (App Router)</div>
-              <div className="text-[11px] text-neutral-400 mt-1">TypeScript & Node.js runtime</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="p-3 bg-neutral-950/80 border border-neutral-800/80 rounded-lg hover:border-neutral-700 transition">
+              <div className="text-[10px] font-bold text-emerald-400 mb-0.5">Framework</div>
+              <div className="text-xs font-bold text-white">Next.js (App Router)</div>
+              <div className="text-[10px] text-neutral-500 mt-1">TypeScript & Server Components</div>
             </div>
 
-            <div className="p-4 bg-neutral-950/60 border border-neutral-800/80 rounded-xl">
-              <div className="text-xs font-bold text-emerald-400 mb-1">Styling & UI</div>
-              <div className="text-sm font-semibold text-white">Tailwind CSS</div>
-              <div className="text-[11px] text-neutral-400 mt-1">High-density Dark Mode UI</div>
+            <div className="p-3 bg-neutral-950/80 border border-neutral-800/80 rounded-lg hover:border-neutral-700 transition">
+              <div className="text-[10px] font-bold text-emerald-400 mb-0.5">Styling</div>
+              <div className="text-xs font-bold text-white">Tailwind CSS</div>
+              <div className="text-[10px] text-neutral-500 mt-1">High-density Monochrome Dark Theme</div>
             </div>
 
-            <div className="p-4 bg-neutral-950/60 border border-neutral-800/80 rounded-xl">
-              <div className="text-xs font-bold text-emerald-400 mb-1">Sumber Data Finansial</div>
-              <div className="text-sm font-semibold text-white">Yahoo Finance API</div>
-              <div className="text-[11px] text-neutral-400 mt-1">Lib `yahoo-finance2` v3</div>
+            <div className="p-3 bg-neutral-950/80 border border-neutral-800/80 rounded-lg hover:border-neutral-700 transition">
+              <div className="text-[10px] font-bold text-emerald-400 mb-0.5">Market Data Engine</div>
+              <div className="text-xs font-bold text-white">Yahoo Finance API</div>
+              <div className="text-[10px] text-neutral-500 mt-1">Library `yahoo-finance2` + Node-Cache</div>
             </div>
 
-            <div className="p-4 bg-neutral-950/60 border border-neutral-800/80 rounded-xl">
-              <div className="text-xs font-bold text-emerald-400 mb-1">Visualisasi Interactive Chart</div>
-              <div className="text-sm font-semibold text-white">TradingView Widget</div>
-              <div className="text-[11px] text-neutral-400 mt-1">Embed Widget Iframe Real-time</div>
+            <div className="p-3 bg-neutral-950/80 border border-neutral-800/80 rounded-lg hover:border-neutral-700 transition">
+              <div className="text-[10px] font-bold text-emerald-400 mb-0.5">Chart Engine</div>
+              <div className="text-xs font-bold text-white">TradingView Widget</div>
+              <div className="text-[10px] text-neutral-500 mt-1">Embed Interactive Charting</div>
             </div>
 
-            <div className="p-4 bg-neutral-950/60 border border-neutral-800/80 rounded-xl">
-              <div className="text-xs font-bold text-emerald-400 mb-1">AI Assistant & Pair Programming</div>
-              <div className="text-sm font-semibold text-white">Google Gemini Agent</div>
-              <div className="text-[11px] text-neutral-400 mt-1">Pengembangan kode & debug</div>
+            <div className="p-3 bg-neutral-950/80 border border-neutral-800/80 rounded-lg hover:border-neutral-700 transition">
+              <div className="text-[10px] font-bold text-emerald-400 mb-0.5">AI Coding Assistant</div>
+              <div className="text-xs font-bold text-white">Google Gemini Agent</div>
+              <div className="text-[10px] text-neutral-500 mt-1">Pengembangan & Pengujian Kode</div>
             </div>
 
-            <div className="p-4 bg-neutral-950/60 border border-neutral-800/80 rounded-xl">
-              <div className="text-xs font-bold text-emerald-400 mb-1">Infrastruktur & Deploy</div>
-              <div className="text-sm font-semibold text-white">Vercel Edge Platform</div>
-              <div className="text-[11px] text-neutral-400 mt-1">Automated Global Deployment</div>
+            <div className="p-3 bg-neutral-950/80 border border-neutral-800/80 rounded-lg hover:border-neutral-700 transition">
+              <div className="text-[10px] font-bold text-emerald-400 mb-0.5">Infrastructure</div>
+              <div className="text-xs font-bold text-white">Vercel Platform</div>
+              <div className="text-[10px] text-neutral-500 mt-1">Edge Deployment Global</div>
             </div>
           </div>
         </div>
       </main>
-
-      {/* Footer Component */}
-      <Footer />
     </div>
   );
 }

@@ -7,6 +7,13 @@ export interface Stock {
   volume: number;
   sector: string;
   isEditorPick?: boolean;
+
+  // --- Atribut Tambahan untuk Stock Screener ---
+  trailingPE?: number | null;
+  priceToBook?: number | null;
+  dividendYield?: number | null;
+  fiftyTwoWeekHigh?: number | null;
+  fiftyTwoWeekLow?: number | null;
 }
 
 export interface StockNewsItem {
@@ -73,4 +80,6 @@ export interface YahooQuoteResult {
   fiftyTwoWeekHigh?: number;
   fiftyTwoWeekLow?: number;
   trailingPE?: number;
+  priceToBook?: number; // Ditambahkan untuk backend route.ts
+  dividendYield?: number; // Ditambahkan untuk backend route.ts
 }

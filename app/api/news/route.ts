@@ -54,7 +54,7 @@ export async function GET() {
 
     const items = (feed.items || []) as CustomItem[];
 
-    const newsItems = items.slice(0, 20).map((item) => {
+    const newsItems = items.slice(0, 50).map((item) => {
       const rawTitle = item.title || "Tanpa Judul";
       const sourceName = cleanSource(item);
       const displayTitle = cleanTitle(rawTitle);

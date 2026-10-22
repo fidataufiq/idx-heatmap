@@ -1,9 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { Stock } from "@/types/stock";
-import { getHeatmapColor, formatCurrency } from "@/utils/formatters";
 
 interface StockCardProps {
   stock: Stock;
@@ -11,45 +9,37 @@ interface StockCardProps {
 
 export default function StockCard({ stock }: StockCardProps) {
   const isPositive = stock.change >= 0;
-  const [imgError, setImgError] = useState(false);
-
-  // Bersihkan simbol untuk URL logo (contoh: BBCA.JK -> bbca)
-  const cleanSymbol = stock.symbol.replace(".JK", "").toLowerCase();
-
-  // Sumber logo publik menggunakan Clearbit atau fallback domain perusahaan
-  const logoUrl = `https://logo.clearbit.com/${cleanSymbol}.co.id`;
 
   return (
     <Link
       href={`/stock/${stock.symbol}`}
-      title={`${stock.name} (${stock.symbol})\nHarga: Rp ${stock.price.toLocaleString("id-ID")}\nPerubahan: ${isPositive ? "+" : ""}${stock.change.toFixed(2)}%\nSektor: ${stock.sector}`}
-      className={`border rounded-lg p-2 flex flex-col justify-between transition-all duration-200 cursor-pointer shadow-xs hover:scale-[1.02] hover:border-neutral-500 overflow-hidden ${getHeatmapColor(stock.change)}`}
+      className={`group relative flex flex-col justify-between rounded-lg p-1.5 sm:p-2.5 border transition-all duration-200 hover:scale-[1.02] hover:z-10 backdrop-blur-md shadow-sm overflow-hidden ${
+        isPositive ? "bg-emerald-950/30 border-emerald-500/30 hover:border-emerald-500/60 hover:bg-emerald-950/50" : "bg-rose-950/30 border-rose-500/30 hover:border-rose-500/60 hover:bg-rose-950/50"
+      }`}
     >
-      {/* Baris Atas: Logo / Inisial & Simbol */}
-      <div className="flex justify-between items-center leading-tight">
-        <div className="flex items-center gap-1.5 overflow-hidden">
-          {!imgError ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={logoUrl} alt={stock.symbol} onError={() => setImgError(true)} className="w-4 h-4 rounded-full object-contain bg-white/10 shrink-0" />
-          ) : (
-            <div className="w-4 h-4 rounded-full bg-neutral-900/60 text-[9px] font-bold text-neutral-300 flex items-center justify-center shrink-0">{stock.symbol.charAt(0)}</div>
-          )}
-          <span className="font-bold text-xs tracking-tight truncate text-white">{stock.symbol}</span>
-        </div>
+      {/* Badge Editor's Pick */}
+      {stock.isEditorPick && <span className="absolute -top-1 -right-1 bg-amber-500 text-neutral-950 font-mono font-bold text-[7px] px-1 rounded-full z-10">★</span>}
 
-        <span className="text-[10px] font-semibold tracking-tight shrink-0">
+      {/* Baris Atas: Kode Saham & Persentase Perubahan */}
+      <div className="flex items-center justify-between gap-0.5 w-full">
+        <span className="font-mono font-bold text-[11px] sm:text-xs text-white tracking-tight truncate">{stock.symbol}</span>
+
+        <span
+          className={`font-mono font-semibold text-[8px] sm:text-[10px] px-1 py-0.2 rounded leading-none whitespace-nowrap ${
+            isPositive ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-rose-500/20 text-rose-400 border border-rose-500/30"
+          }`}
+        >
           {isPositive ? "+" : ""}
           {stock.change.toFixed(1)}%
         </span>
       </div>
 
-      {/* Bagian Tengah: Harga Saham */}
-      <div className="text-center my-auto">
-        <p className="text-[11px] font-bold tracking-tight text-white/95">Rp {formatCurrency(stock.price)}</p>
-      </div>
+      {/* Baris Bawah: Harga & Nama Perusahaan */}
+      <div className="mt-1 flex flex-col justify-end truncate">
+        <span className="font-mono font-semibold text-[10px] sm:text-xs text-neutral-200 truncate">{stock.price > 10000 ? `${(stock.price / 1000).toFixed(0)}k` : stock.price.toLocaleString("id-ID")}</span>
 
-      {/* Bagian Bawah: Sektor Singkat */}
-      <div className="text-[8px] text-neutral-300/80 truncate text-center font-medium">{stock.sector.split(" ")[0]}</div>
+        <span className="text-[8px] sm:text-[9px] text-neutral-400/80 truncate font-sans">{stock.name}</span>
+      </div>
     </Link>
   );
 }
