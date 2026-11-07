@@ -5,7 +5,8 @@ import { Stock } from "@/types/stock";
 import StockCard from "@/components/StockCard";
 import StockScreener from "@/components/StockScreener";
 import StockComparer from "@/components/StockComparer";
-import StockSignals from "@/components/StockSignals"; // 1. Impor komponen Sinyal
+import StockSignals from "@/components/StockSignals";
+import MarketOverview from "@/components/MarketOverview"; // 1. Impor komponen MarketOverview
 
 const QUICK_FILTERS = [
   "All",
@@ -29,7 +30,7 @@ export default function Home() {
   const [search, setSearch] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<string>("All");
   const [sortBy, setSortBy] = useState<"marketCap" | "change" | "volume">("marketCap");
-  const [viewMode, setViewMode] = useState<"heatmap" | "screener" | "komparasi" | "signals">("heatmap"); // 2. Tambah mode signals
+  const [viewMode, setViewMode] = useState<"heatmap" | "screener" | "komparasi" | "signals" | "market">("heatmap"); // 2. Tambah mode market
 
   useEffect(() => {
     async function fetchStocks() {
@@ -74,9 +75,9 @@ export default function Home() {
 
   return (
     <div className="flex flex-col flex-1 w-full bg-neutral-950 text-white selection:bg-neutral-800 selection:text-white font-mono">
-      {/* Sub-Header Navigasi Sticky dengan 4 Mode */}
+      {/* Sub-Header Navigasi Sticky dengan 5 Mode */}
       <div className="sticky top-12 z-40 border-b border-neutral-800 bg-neutral-950 px-3 sm:px-4 py-2 flex flex-wrap items-center justify-between gap-2">
-        {/* Switcher 4 Mode Display */}
+        {/* Switcher 5 Mode Display */}
         <div className="flex items-center gap-1 bg-neutral-900 p-0.5 rounded border border-neutral-800 overflow-x-auto">
           <button
             onClick={() => setViewMode("heatmap")}
@@ -110,27 +111,37 @@ export default function Home() {
           >
             ⚡ Sinyal Pasar
           </button>
+          <button
+            onClick={() => setViewMode("market")}
+            className={`px-2.5 py-0.5 rounded text-[11px] font-bold transition cursor-pointer whitespace-nowrap ${
+              viewMode === "market" ? "bg-neutral-800 text-white shadow-sm border border-neutral-700/60" : "text-neutral-400 hover:text-white"
+            }`}
+          >
+            🌐 Market & Macro
+          </button>
         </div>
 
         {/* Input Pencarian */}
         <div className="flex items-center gap-2">
-          <input
-            type="text"
-            placeholder="Cari emiten (BBCA)..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="bg-neutral-900 border border-neutral-800 rounded px-2.5 py-1 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-600 font-mono w-36 sm:w-48 transition"
-          />
           {viewMode === "heatmap" && (
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as "marketCap" | "change" | "volume")}
-              className="bg-neutral-900 border border-neutral-800 rounded px-2 py-1 text-xs text-neutral-300 focus:outline-none focus:border-neutral-600 font-mono transition cursor-pointer"
-            >
-              <option value="marketCap">Market Cap</option>
-              <option value="change">% Perubahan</option>
-              <option value="volume">Volume</option>
-            </select>
+            <>
+              <input
+                type="text"
+                placeholder="Cari emiten (BBCA)..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="bg-neutral-900 border border-neutral-800 rounded px-2.5 py-1 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-600 font-mono w-36 sm:w-48 transition"
+              />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as "marketCap" | "change" | "volume")}
+                className="bg-neutral-900 border border-neutral-800 rounded px-2 py-1 text-xs text-neutral-300 focus:outline-none focus:border-neutral-600 font-mono transition cursor-pointer"
+              >
+                <option value="marketCap">Market Cap</option>
+                <option value="change">% Perubahan</option>
+                <option value="volume">Volume</option>
+              </select>
+            </>
           )}
         </div>
       </div>
@@ -168,7 +179,8 @@ export default function Home() {
               <p>Tidak ada saham yang sesuai dengan filter atau pencarian.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-2 auto-rows-[78px]">
+            // Jarak antar card dipersempit menggunakan gap-1
+            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-1 auto-rows-[78px]">
               {filteredAndSortedStocks.map((stock) => (
                 <StockCard key={stock.symbol} stock={stock} />
               ))}
@@ -178,8 +190,10 @@ export default function Home() {
           <StockScreener stocks={stocks} />
         ) : viewMode === "komparasi" ? (
           <StockComparer stocks={stocks} />
-        ) : (
+        ) : viewMode === "signals" ? (
           <StockSignals stocks={stocks} />
+        ) : (
+          <MarketOverview stocks={stocks} />
         )}
       </div>
     </div>

@@ -1,5 +1,7 @@
 "use client";
 
+import { HELP_SECTIONS } from "@/data/helpData";
+
 interface HelpModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -13,7 +15,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
       {/* Backdrop Area untuk Menutup Drawer saat diklik di luar */}
       <div className="fixed inset-0" onClick={onClose}></div>
 
-      {/* Slide-over Drawer Panel dari Sisi Kanan (Tanpa blur berlebihan) */}
+      {/* Slide-over Drawer Panel dari Sisi Kanan */}
       <div className="relative z-10 bg-neutral-900 border-l border-neutral-800 w-full max-w-xl h-full shadow-2xl flex flex-col justify-between overflow-hidden animate-in slide-in-from-right duration-300">
         {/* Drawer Header */}
         <div className="flex items-center justify-between border-b border-neutral-800 p-4 bg-neutral-950 shrink-0">
@@ -21,7 +23,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
             <div className="flex h-6 w-6 items-center justify-center rounded bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-bold text-xs">?</div>
             <div>
               <h3 className="font-extrabold text-white text-xs sm:text-sm uppercase tracking-wider">System Manual & Documentation</h3>
-              <p className="text-[10px] text-neutral-400 font-sans">Dokumentasi Modul & Metodologi MapIDX Terminal</p>
+              <p className="text-[10px] text-neutral-400 font-sans">Panduan Lengkap & Cara Pakai MapIDX Terminal (Bahasa Sederhana)</p>
             </div>
           </div>
           <button onClick={onClose} className="text-neutral-400 hover:text-white text-xs bg-neutral-800 hover:bg-neutral-700 px-2.5 py-1 rounded transition cursor-pointer border border-neutral-700">
@@ -29,94 +31,54 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
           </button>
         </div>
 
-        {/* Drawer Content Area (Scrollable) */}
+        {/* Drawer Content Area (Scrollable - Memuat Semua Isi Bantuan) */}
         <div className="p-4 sm:p-6 space-y-6 text-xs text-neutral-300 font-sans leading-relaxed overflow-y-auto flex-1">
-          {/* SECTION 1: RINGKASAN & TUJUAN PROJEK */}
-          <div className="bg-neutral-950/80 border border-neutral-800 rounded-xl p-4 space-y-2">
-            <h4 className="font-bold text-white text-xs font-mono uppercase text-emerald-400 flex items-center gap-2">
-              <span>🚀</span> Tentang MapIDX Terminal
-            </h4>
-            <p className="text-neutral-300 text-[11px] leading-normal">
-              <strong>MapIDX</strong> adalah platform analisis data finansial <em>full-width</em> berkinerja tinggi berbasis <strong>Next.js 16 App Router</strong> dan <strong>Tailwind CSS</strong>. Dirancang untuk menyajikan data Bursa
-              Efek Indonesia (BEI/IDX) secara <em>real-time</em>, presisi, dan intuitif.
-            </p>
-          </div>
-
-          {/* SECTION 2: MODUL 1 - HEATMAP */}
-          <div className="space-y-2 border-b border-neutral-800/80 pb-5">
-            <h4 className="font-bold text-white text-xs font-mono uppercase text-emerald-400 flex items-center gap-2">
-              <span>📊</span> Modul 1: Sectoral Heatmap & Visual Grid
-            </h4>
-            <p className="text-neutral-400 text-[11px]">Visualisasi pergerakan harga saham berbasis luas area kapitalisasi pasar (Market Cap Weighting):</p>
-            <ul className="list-disc pl-5 space-y-1.5 text-neutral-300 font-mono text-[11px]">
-              <li>
-                <strong className="text-white">Proposi Blok:</strong> Ukuran kotak mencerminkan besar Market Cap emiten.
-              </li>
-              <li>
-                <strong className="text-white">Pengodean Warna:</strong>
-                <span className="text-emerald-400 ml-1">Hijau (+%)</span> untuk penguatan dan
-                <span className="text-rose-400 ml-1">Merah (-%)</span> untuk koreksi.
-              </li>
-              <li>
-                <strong className="text-white">Sector Quick Pills:</strong> Pemfilteran instan berdasarkan 10+ sektor industri.
-              </li>
-            </ul>
-          </div>
-
-          {/* SECTION 3: MODUL 2 - SCREENER */}
-          <div className="space-y-2 border-b border-neutral-800/80 pb-5">
-            <h4 className="font-bold text-white text-xs font-mono uppercase text-emerald-400 flex items-center gap-2">
-              <span>🎯</span> Modul 2: Stock Screener Cerdas
-            </h4>
-            <p className="text-neutral-400 text-[11px]">Alat penyaring fundamental interaktif berbasis kriteria rasio:</p>
-            <div className="grid grid-cols-1 gap-2 mt-2 font-mono text-[10px]">
-              <div className="bg-neutral-950 p-2.5 rounded-lg border border-neutral-800">
-                <span className="text-emerald-400 font-bold block mb-1">💎 Undervalued Strategy</span>
-                Menyaring emiten dengan PBV &lt; 1.2x dan PER &lt; 15x.
+          {HELP_SECTIONS.map((section) => (
+            <div key={section.id} className="space-y-3 border-b border-neutral-800/80 pb-6 last:border-b-0 last:pb-0">
+              <div className="flex items-center gap-2">
+                <span className="text-base">{section.icon}</span>
+                <div>
+                  <h4 className="font-bold text-white text-xs font-mono uppercase text-emerald-400">{section.title}</h4>
+                  <p className="text-[10px] text-neutral-400">{section.subtitle}</p>
+                </div>
               </div>
-              <div className="bg-neutral-950 p-2.5 rounded-lg border border-neutral-800">
-                <span className="text-emerald-400 font-bold block mb-1">💰 High Dividend Aristocrats</span>
-                Menyaring emiten dengan Dividend Yield &gt; 4%.
-              </div>
+
+              {section.content.map((item, idx) => (
+                <div key={idx} className="bg-neutral-950/60 p-3.5 rounded-xl border border-neutral-800/60 space-y-2">
+                  <h5 className="font-bold text-neutral-200 text-xs font-sans">{item.heading}</h5>
+                  <p className="text-neutral-300 text-[11px] leading-normal">{item.description}</p>
+
+                  {/* Bullet Points jika ada */}
+                  {item.bullets && (
+                    <ul className="list-disc pl-5 space-y-1.5 text-neutral-300 font-sans text-[11px] pt-1">
+                      {item.bullets.map((bullet, bIdx) => (
+                        <li key={bIdx}>{bullet}</li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {/* Langkah-langkah jika ada */}
+                  {item.steps && (
+                    <div className="space-y-1.5 pt-1">
+                      {item.steps.map((step, sIdx) => (
+                        <div key={sIdx} className="bg-neutral-900 p-2 rounded border border-neutral-800 text-[11px] text-neutral-300">
+                          {step}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Kotak Catatan / Callout jika ada */}
+                  {item.callout && (
+                    <div className="bg-amber-950/30 border border-amber-500/30 p-2.5 rounded-lg mt-2 text-[11px]">
+                      <span className="font-bold text-amber-400 block mb-0.5">⚠️ {item.callout.title}</span>
+                      <span className="text-neutral-300">{item.callout.desc}</span>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
-          </div>
-
-          {/* SECTION 4: MODUL 3 - KOMPARASI CARD */}
-          <div className="space-y-2 border-b border-neutral-800/80 pb-5">
-            <h4 className="font-bold text-white text-xs font-mono uppercase text-emerald-400 flex items-center gap-2">
-              <span>⚖️</span> Modul 3: Komparasi Card Head-to-Head
-            </h4>
-            <p className="text-neutral-400 text-[11px]">
-              Analisis berdampingan hingga 4 emiten lengkap dengan <strong className="text-white">Visual Range Bar 52 Minggu</strong> untuk memetakan posisi harga saat ini terhadap titik tertinggi dan terendah tahunan.
-            </p>
-          </div>
-
-          {/* SECTION 5: MODUL 4 - AUTOMATED MARKET SIGNALS */}
-          <div className="space-y-2 border-b border-neutral-800/80 pb-5">
-            <h4 className="font-bold text-white text-xs font-mono uppercase text-emerald-400 flex items-center gap-2">
-              <span>⚡</span> Modul 4: Sinyal Pasar Otomatis
-            </h4>
-            <p className="text-neutral-400 text-[11px]">Mesin kuantitatif kuantitatif berbasis 3 aturan institusional:</p>
-            <ol className="list-decimal pl-5 space-y-1.5 text-neutral-300 font-mono text-[11px]">
-              <li>
-                <strong className="text-white">Filter Likuiditas ADTV:</strong> Menyaring emiten dengan nilai transaksi &ge; Rp 2 Miliar/hari.
-              </li>
-              <li>
-                <strong className="text-white">Valuasi Sektoral:</strong> Ambang batas rasio PER/PBV yang disesuaikan per industri.
-              </li>
-              <li>
-                <strong className="text-white">Konfirmasi Volume:</strong> Memastikan lonjakan momentum divalidasi oleh partisipasi volume pasar.
-              </li>
-            </ol>
-          </div>
-
-          {/* SECTION 6: MODUL 5 - NEWS ENGINE */}
-          <div className="space-y-2">
-            <h4 className="font-bold text-white text-xs font-mono uppercase text-emerald-400 flex items-center gap-2">
-              <span>📰</span> Modul 5: Agregator Berita Finansial
-            </h4>
-            <p className="text-neutral-400 text-[11px]">Mengagregasi 50+ artikel berita harian dari sumber RSS terpercaya lengkap dengan sistem filter kategori dan pencarian kata kunci.</p>
-          </div>
+          ))}
         </div>
 
         {/* Drawer Footer */}

@@ -20,6 +20,7 @@ export default function NewsPage() {
   const [lastFetchTime, setLastFetchTime] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("Semua Berita");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [sortBy, setSortBy] = useState<string>("terbaru"); // State untuk opsi urutan berita
 
   const loadNewsData = useCallback(async (isManualRefresh = false) => {
     if (isManualRefresh) {
@@ -91,9 +92,9 @@ export default function NewsPage() {
     };
   }, []);
 
-  // Filter Pintar: Mencegah Kategori Sepi dengan Pencocokan Fleksibel Multi-Kata Kunci
+  // Filter Pintar & Pengurutan Berita
   const filteredNews = useMemo(() => {
-    return news.filter((item) => {
+    const filtered = news.filter((item) => {
       const title = item.title.toLowerCase();
       const cat = item.category.toLowerCase();
       const source = item.source.toLowerCase();
@@ -107,7 +108,7 @@ export default function NewsPage() {
       if (selectedCategory === "Semua Berita") return true;
 
       if (selectedCategory === "🔥 Terhangat & Populer") {
-        return true; // Menampilkan seluruh feed berita terbaru tanpa terpotong
+        return true;
       }
 
       if (selectedCategory === "🚨 Makro & Kebijakan") {
@@ -136,7 +137,29 @@ export default function NewsPage() {
 
       return true;
     });
-  }, [news, selectedCategory, searchQuery]);
+
+    // Proses Pengurutan (Sorting)
+    return [...filtered].sort((a, b) => {
+      if (sortBy === "mover") {
+        const moverRegex = /ihsg|saham|bunga|bi|laba|dividen|kredit|inflasi|fed|merger|akuisisi|bonds|rupiah/i;
+        const aScore = moverRegex.test(a.title) ? 1 : 0;
+        const bScore = moverRegex.test(b.title) ? 1 : 0;
+        return bScore - aScore;
+      }
+      if (sortBy === "viral") {
+        const viralRegex = /rekor|melejit|longsor|heboh|geger|triliun|melesat|anjlok|darurat|terbesar/i;
+        const aScore = viralRegex.test(a.title) ? 1 : 0;
+        const bScore = viralRegex.test(b.title) ? 1 : 0;
+        return bScore - aScore;
+      }
+      // "terbaru" -> default urutan asli feed
+      return 0;
+    });
+  }, [news, selectedCategory, searchQuery, sortBy]);
+
+  // Pisahkan Berita untuk Highlight Utama (Item pertama dari hasil filter)
+  const featuredNews = filteredNews.length > 0 ? filteredNews[0] : null;
+  const remainingNews = filteredNews.length > 1 ? filteredNews.slice(1) : [];
 
   return (
     <div className="flex flex-col flex-1 w-full bg-neutral-950 text-white font-mono selection:bg-neutral-800 selection:text-white">
@@ -193,7 +216,18 @@ export default function NewsPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3 text-[11px] text-neutral-400 shrink-0">
+          <div className="flex flex-wrap items-center gap-3 text-[11px] text-neutral-400 shrink-0">
+            {/* Opsi Filter Urutan (Sort By) */}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="bg-neutral-900 border border-neutral-800 rounded px-2.5 py-1 text-[11px] text-neutral-200 focus:outline-none focus:border-neutral-600 font-mono transition cursor-pointer"
+            >
+              <option value="terbaru">📅 Urutkan: Terbaru</option>
+              <option value="mover">📈 Paling Menggerakkan Pasar</option>
+              <option value="viral">🔥 Viral & Perhatian Tinggi</option>
+            </select>
+
             <span>
               Pembaruan: <strong className="text-emerald-400">{lastFetchTime || "Memuat..."}</strong>
             </span>
@@ -209,17 +243,29 @@ export default function NewsPage() {
 
         {/* Loading State */}
         {loading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 py-2">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="bg-neutral-900/30 border border-neutral-800/60 rounded-xl p-4 h-36 animate-pulse flex flex-col justify-between">
-                <div className="space-y-2">
-                  <div className="h-3 bg-neutral-800 rounded w-1/3"></div>
-                  <div className="h-3 bg-neutral-800/60 rounded w-full"></div>
-                  <div className="h-3 bg-neutral-800/60 rounded w-4/5"></div>
-                </div>
-                <div className="h-2.5 bg-neutral-800/40 rounded w-1/2"></div>
+          <div className="space-y-4 py-2">
+            {/* Loading Featured Hero */}
+            <div className="bg-neutral-900/40 border border-neutral-800 rounded-2xl p-6 h-48 animate-pulse flex flex-col justify-between">
+              <div className="space-y-3">
+                <div className="h-4 bg-neutral-800 rounded w-1/4"></div>
+                <div className="h-6 bg-neutral-800/80 rounded w-3/4"></div>
+                <div className="h-4 bg-neutral-800/60 rounded w-1/2"></div>
               </div>
-            ))}
+              <div className="h-3 bg-neutral-800/40 rounded w-1/5"></div>
+            </div>
+            {/* Loading Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="bg-neutral-900/30 border border-neutral-800/60 rounded-xl p-4 h-36 animate-pulse flex flex-col justify-between">
+                  <div className="space-y-2">
+                    <div className="h-3 bg-neutral-800 rounded w-1/3"></div>
+                    <div className="h-3 bg-neutral-800/60 rounded w-full"></div>
+                    <div className="h-3 bg-neutral-800/60 rounded w-4/5"></div>
+                  </div>
+                  <div className="h-2.5 bg-neutral-800/40 rounded w-1/2"></div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
@@ -234,6 +280,7 @@ export default function NewsPage() {
               onClick={() => {
                 setSelectedCategory("Semua Berita");
                 setSearchQuery("");
+                setSortBy("terbaru");
               }}
               className="text-emerald-400 underline hover:text-emerald-300"
             >
@@ -242,34 +289,68 @@ export default function NewsPage() {
           </div>
         )}
 
-        {/* News Grid Padat Multi-Kolom */}
+        {/* Highlight Utama (Featured Hero News) & Grid Berita Lainnya */}
         {!loading && !error && filteredNews.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-            {filteredNews.map((item, index) => (
+          <div className="flex flex-col gap-4">
+            {/* 1. HIGHLIGHT UTAMA (FEATURED BREAKING NEWS) */}
+            {featuredNews && (
               <a
-                key={index}
-                href={item.link}
+                href={featuredNews.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative bg-neutral-900/40 border border-neutral-800 hover:border-emerald-500/50 rounded-xl p-3.5 flex flex-col justify-between transition-all duration-200 hover:scale-[1.01] hover:bg-neutral-900/70 overflow-hidden"
+                className="group relative bg-gradient-to-br from-neutral-900 via-neutral-900/90 to-neutral-950 border border-emerald-500/30 hover:border-emerald-400 rounded-2xl p-5 sm:p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/10 overflow-hidden"
               >
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
 
-                <div>
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/50 border border-emerald-500/30 px-2 py-0.2 rounded truncate max-w-[130px]">{item.category || "Finansial"}</span>
-                    <span className="text-[10px] text-neutral-500 shrink-0">{item.pubDate}</span>
+                <div className="relative z-10 space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-300 bg-emerald-950/80 border border-emerald-500/40 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                      🔥 Highlight Utama Pasar
+                    </span>
+                    <span className="text-[11px] text-neutral-400 font-mono">{featuredNews.pubDate}</span>
                   </div>
 
-                  <h2 className="text-xs font-semibold text-neutral-200 group-hover:text-emerald-300 transition-colors line-clamp-3 leading-snug">{item.title}</h2>
+                  <h2 className="text-base sm:text-xl font-bold text-white group-hover:text-emerald-300 transition-colors leading-snug max-w-4xl">{featuredNews.title}</h2>
                 </div>
 
-                <div className="mt-3 pt-2 border-t border-neutral-800/80 flex items-center justify-between text-[10px]">
-                  <span className="text-neutral-400 truncate max-w-[140px] bg-neutral-950 px-1.5 py-0.5 rounded border border-neutral-800">📰 {item.source}</span>
-                  <span className="text-emerald-400 font-bold group-hover:translate-x-0.5 transition-transform">Baca ↗</span>
+                <div className="relative z-10 mt-6 pt-3 border-t border-neutral-800 flex items-center justify-between text-xs font-mono">
+                  <span className="text-neutral-300 bg-neutral-950 px-2.5 py-1 rounded border border-neutral-800">📰 Sumber: {featuredNews.source}</span>
+                  <span className="text-emerald-400 font-bold group-hover:translate-x-1 transition-transform flex items-center gap-1">Baca Berita Lengkap ↗</span>
                 </div>
               </a>
-            ))}
+            )}
+
+            {/* 2. GRID BERITA LAINNYA */}
+            {remainingNews.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 pt-2">
+                {remainingNews.map((item, index) => (
+                  <a
+                    key={index}
+                    href={item.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group relative bg-neutral-900/40 border border-neutral-800 hover:border-emerald-500/50 rounded-xl p-3.5 flex flex-col justify-between transition-all duration-200 hover:scale-[1.01] hover:bg-neutral-900/70 overflow-hidden"
+                  >
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/50 border border-emerald-500/30 px-2 py-0.2 rounded truncate max-w-[130px]">{item.category || "Finansial"}</span>
+                        <span className="text-[10px] text-neutral-500 shrink-0">{item.pubDate}</span>
+                      </div>
+
+                      <h2 className="text-xs font-semibold text-neutral-200 group-hover:text-emerald-300 transition-colors line-clamp-3 leading-snug">{item.title}</h2>
+                    </div>
+
+                    <div className="mt-3 pt-2 border-t border-neutral-800/80 flex items-center justify-between text-[10px]">
+                      <span className="text-neutral-400 truncate max-w-[140px] bg-neutral-950 px-1.5 py-0.5 rounded border border-neutral-800">📰 {item.source}</span>
+                      <span className="text-emerald-400 font-bold group-hover:translate-x-0.5 transition-transform">Baca ↗</span>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </main>
