@@ -74,6 +74,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ symb
     const details = summary?.summaryDetail;
     const recTrend = summary?.recommendationTrend?.trend?.[0];
 
+    const rawDetails = (details || {}) as Record<string, unknown>;
+    const rawStats = (stats || {}) as Record<string, unknown>;
+    const exDividendDate = rawDetails.exDividendDate ?? rawStats.exDividendDate ?? null;
+    const dividendDate = rawDetails.dividendDate ?? rawStats.dividendDate ?? null;
+
     // Ekstraksi Berita Emiten
     const items = (newsFeed?.items || []) as CustomItem[];
     const stockNews = items.slice(0, 6).map((item) => {
@@ -110,6 +115,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ symb
       fiftyTwoWeekHigh: quote.fiftyTwoWeekHigh || stats?.fiftyTwoWeekHigh || details?.fiftyTwoWeekHigh || null,
       fiftyTwoWeekLow: quote.fiftyTwoWeekLow || stats?.fiftyTwoWeekLow || details?.fiftyTwoWeekLow || null,
       dividendYield: financial?.dividendYield || details?.dividendYield || null,
+      exDividendDate,
+      dividendDate,
       beta: stats?.beta || details?.beta || null,
       ebitda: financial?.ebitda || null,
       profitMargins: financial?.profitMargins || null,

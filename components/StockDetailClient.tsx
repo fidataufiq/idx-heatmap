@@ -9,8 +9,24 @@ interface StockDetailClientProps {
   symbol: string;
 }
 
+interface ExtendedStockDetail extends StockDetail {
+  exDividendDate?: string | number | Date | null;
+  dividendDate?: string | number | Date | null;
+}
+
+function formatDividendDateID(raw?: string | number | Date | null): string | null {
+  if (!raw) return null;
+  const date = raw instanceof Date ? raw : new Date(raw);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 export default function StockDetailClient({ symbol }: StockDetailClientProps) {
-  const [stock, setStock] = useState<StockDetail | null>(null);
+  const [stock, setStock] = useState<ExtendedStockDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -62,7 +78,6 @@ export default function StockDetailClient({ symbol }: StockDetailClientProps) {
 
   const isPositive = stock.change >= 0;
 
-  // Formatter Konsensus Analis Berwarna
   const getRecommendationBadge = (key?: string) => {
     switch (key?.toLowerCase()) {
       case "buy":
@@ -82,15 +97,20 @@ export default function StockDetailClient({ symbol }: StockDetailClientProps) {
   const trend = stock.recommendationTrend;
   const totalVotes = trend ? trend.strongBuy + trend.buy + trend.hold + trend.sell + trend.strongSell : 0;
 
-  // Hitung Potensi Imbal Hasil berdasarkan Target Price Rata-rata
   const upsidePotential = stock.targetMeanPrice && stock.price > 0 ? (((stock.targetMeanPrice - stock.price) / stock.price) * 100).toFixed(1) : null;
+
+  const rangePosition =
+    stock.fiftyTwoWeekLow && stock.fiftyTwoWeekHigh && stock.fiftyTwoWeekHigh > stock.fiftyTwoWeekLow ? Math.min(100, Math.max(0, ((stock.price - stock.fiftyTwoWeekLow) / (stock.fiftyTwoWeekHigh - stock.fiftyTwoWeekLow)) * 100)) : null;
+
+  const exDateFormatted = formatDividendDateID(stock.exDividendDate);
+  const payDateFormatted = formatDividendDateID(stock.dividendDate);
 
   return (
     <div className="flex flex-col flex-1 w-full bg-neutral-950 text-white font-mono selection:bg-emerald-500 selection:text-neutral-950 relative overflow-x-hidden">
       {/* Background Cyber Ambient Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[300px] bg-emerald-500/5 rounded-full blur-[140px] pointer-events-none"></div>
 
-      {/* Sub-Header Navigasi Sticky Full-Width Sempurna */}
+      {/* Sub-Header Navigasi Sticky */}
       <header className="border-b border-neutral-800/30 bg-neutral-950/90 backdrop-blur-md px-4 sm:px-6 py-2.5 flex items-center justify-between sticky top-12 z-30 w-full shadow-sm">
         <Link href="/" className="text-neutral-400 hover:text-emerald-400 text-xs transition flex items-center gap-1.5 group font-mono">
           <span className="group-hover:-translate-x-1 transition-transform">←</span> Kembali ke Heatmap
@@ -103,181 +123,185 @@ export default function StockDetailClient({ symbol }: StockDetailClientProps) {
         </div>
       </header>
 
-      {/* Main Full-Width Bento Grid Container dengan Jarak Atas (pt-10) yang Sangat Lega dan Nyaman */}
-      <main className="w-full px-4 sm:px-6 pt-10 pb-10 flex-1 flex flex-col gap-6 relative z-10">
-        {/* 1. HERO BENTO CARD: Ticker, Price & Volume Telemetry */}
-        <div className="relative overflow-hidden bg-neutral-900/20 border border-neutral-800/30 rounded-2xl p-5 sm:p-6 backdrop-blur-md shadow-xl flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-          <div className="space-y-2 max-w-3xl">
+      <main className="w-full px-4 sm:px-6 pt-8 pb-10 flex-1 flex flex-col gap-5 relative z-10">
+        {/* 1. HEADER EMITEN & RINGKASAN HARGA ALA STOCKBIT */}
+        <div className="bg-neutral-900/20 border border-neutral-800/30 rounded-2xl p-5 sm:p-6 backdrop-blur-md shadow-xl flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-1.5">
             <div className="flex flex-wrap items-center gap-2.5">
-              <span className="text-3xl sm:text-4xl font-black tracking-tight text-white font-mono">{stock.symbol}</span>
-
-              <span
-                className={`text-xs font-bold px-2.5 py-1 rounded-md border font-mono flex items-center gap-1 ${isPositive ? "bg-emerald-950/80 text-emerald-300 border-emerald-500/40" : "bg-rose-950/80 text-rose-300 border-rose-500/40"}`}
-              >
-                {isPositive ? "▲ +" : "▼ "}
-                {stock.change.toFixed(2)}%
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white font-mono">{stock.symbol}</h1>
+              <span className="text-[11px] bg-neutral-900/80 text-neutral-300 px-2.5 py-0.5 rounded-md border border-neutral-800/60 font-sans">{stock.sector}</span>
+              <span className="text-[11px] text-neutral-400 font-sans">
+                {stock.city ? `${stock.city}, ` : ""}
+                {stock.country}
               </span>
-
-              {stock.sector && <span className="text-[11px] bg-neutral-900/60 text-neutral-300 px-2.5 py-1 rounded-md border border-neutral-800/40">{stock.sector}</span>}
             </div>
-
-            <h1 className="text-sm sm:text-base text-neutral-200 font-semibold font-sans">{stock.name}</h1>
-
-            <p className="text-[11px] text-neutral-400 font-sans flex flex-wrap items-center gap-2">
-              <span>
-                Industri: <strong className="text-neutral-300">{stock.industry}</strong>
-              </span>
-              <span>•</span>
-              <span>
-                Lokasi:{" "}
-                <strong className="text-neutral-300">
-                  {stock.city ? `${stock.city}, ` : ""}
-                  {stock.country}
-                </strong>
-              </span>
+            <p className="text-sm text-neutral-300 font-sans font-medium">{stock.name}</p>
+            <p className="text-[11px] text-neutral-400 font-sans">
+              Industri: <strong className="text-neutral-200">{stock.industry}</strong>
             </p>
           </div>
 
-          {/* Price Showcase Card */}
-          <div className="bg-neutral-950/60 p-4 rounded-xl border border-neutral-800/40 w-full lg:w-auto min-w-[240px] flex flex-col justify-between">
-            <span className="text-[10px] uppercase tracking-wider text-neutral-500 font-bold block mb-1">Harga Terakhir</span>
-            <div className="text-2xl sm:text-3xl font-extrabold text-white font-mono tracking-tight">Rp {stock.price.toLocaleString("id-ID")}</div>
-            <div className="text-[10px] text-neutral-400 font-sans mt-2 pt-2 border-t border-neutral-900/60 flex justify-between">
-              <span>Volume Beredar:</span>
-              <strong className="text-neutral-200 font-mono">{(stock.volume / 1000000).toFixed(2)}M Lembar</strong>
+          {/* Blok Harga Utama & Perubahan */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 bg-neutral-950/60 border border-neutral-800/40 rounded-xl p-4">
+            <div>
+              <span className="text-[10px] uppercase tracking-wider text-neutral-500 font-bold block">Harga Terakhir</span>
+              <div className="flex items-baseline gap-2.5 mt-0.5">
+                <span className="text-2xl sm:text-3xl font-extrabold text-white font-mono">Rp {stock.price.toLocaleString("id-ID")}</span>
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-md border font-mono ${isPositive ? "bg-emerald-950/80 text-emerald-300 border-emerald-500/40" : "bg-rose-950/80 text-rose-300 border-rose-500/40"}`}>
+                  {isPositive ? "▲ +" : "▼ "}
+                  {stock.change.toFixed(2)}%
+                </span>
+              </div>
+            </div>
+
+            <div className="sm:border-l sm:border-neutral-800/60 sm:pl-4 text-[11px] space-y-1">
+              <div className="text-neutral-400 font-sans">Volume</div>
+              <div className="font-bold text-neutral-100 font-mono">{(stock.volume / 1000000).toFixed(2)}M Lembar</div>
             </div>
           </div>
         </div>
 
-        {/* 2. KEY METRICS BENTO GRID (6 Column Cards dengan Ikon & Tooltip Halus) */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {/* Market Cap */}
-          <div className="relative group bg-neutral-900/20 border border-neutral-800/30 rounded-xl p-4 flex flex-col justify-between hover:border-neutral-700/50 transition">
-            <div className="flex items-center justify-between text-[11px] text-neutral-400">
-              <span className="flex items-center gap-1.5">
-                <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-                Market Cap
-              </span>
-              <span className="text-[9px] text-neutral-500 font-mono w-4 h-4 rounded bg-neutral-950 flex items-center justify-center border border-neutral-800/40 cursor-pointer">?</span>
-            </div>
-            <span className="text-xs sm:text-sm font-bold mt-2 truncate text-white">Rp {(stock.marketCap / 1e9).toLocaleString("id-ID", { maximumFractionDigits: 1 })}B</span>
-            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-3 opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 w-52 p-3 bg-neutral-900/95 border border-neutral-700/50 rounded-xl shadow-2xl backdrop-blur-xl z-50 text-[10px] text-neutral-300 leading-snug">
-              <p className="font-bold text-emerald-400 mb-1">Market Capitalization</p>
-              Total nilai pasar seluruh saham perusahaan (Harga Saham × Jumlah Saham Beredar).
-            </div>
+        {/* 2. AREA UTAMA ALA STOCKBIT: GRAFIK (KIRI) + KEY STATS, 52W RANGE & SNAPSHOT (KANAN) */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
+          {/* Grafik Interaktif */}
+          <div className="xl:col-span-8 bg-neutral-900/20 border border-neutral-800/30 rounded-2xl p-4 backdrop-blur-md shadow-xl flex flex-col justify-between">
+            <StockChart symbol={stock.symbol} />
           </div>
 
-          {/* P/E Ratio */}
-          <div className="relative group bg-neutral-900/20 border border-neutral-800/30 rounded-xl p-4 flex flex-col justify-between hover:border-neutral-700/50 transition">
-            <div className="flex items-center justify-between text-[11px] text-neutral-400">
-              <span className="flex items-center gap-1.5">
-                <svg className="w-3.5 h-3.5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                P/E Ratio
-              </span>
-              <span className="text-[9px] text-neutral-500 font-mono w-4 h-4 rounded bg-neutral-950 flex items-center justify-center border border-neutral-800/40 cursor-pointer">?</span>
-            </div>
-            <span className="text-xs sm:text-sm font-bold mt-2 text-white">{stock.trailingPE ? stock.trailingPE.toFixed(2) : "N/A"}</span>
-            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-3 opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 w-52 p-3 bg-neutral-900/95 border border-neutral-700/50 rounded-xl shadow-2xl backdrop-blur-xl z-50 text-[10px] text-neutral-300 leading-snug">
-              <p className="font-bold text-amber-400 mb-1">Price to Earnings Ratio</p>
-              Rasio valuasi harga saham terhadap laba bersih per lembar (EPS).
-            </div>
-          </div>
+          {/* Panel Samping Padat: 52W Range + Key Statistics + Fundamental & Dividen Snapshot */}
+          <div className="xl:col-span-4 flex flex-col gap-4 justify-between">
+            {/* 52-Week Range Card */}
+            <div className="bg-neutral-900/20 border border-neutral-800/30 rounded-2xl p-4 sm:p-5 backdrop-blur-md shadow-xl space-y-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xs font-bold text-white uppercase tracking-wider">Rentang Harga 52 Minggu</h2>
+                {rangePosition !== null && <span className="text-[10px] font-mono text-emerald-400">{rangePosition.toFixed(0)}% dari Low</span>}
+              </div>
 
-          {/* PBV */}
-          <div className="relative group bg-neutral-900/20 border border-neutral-800/30 rounded-xl p-4 flex flex-col justify-between hover:border-neutral-700/50 transition">
-            <div className="flex items-center justify-between text-[11px] text-neutral-400">
-              <span className="flex items-center gap-1.5">
-                <svg className="w-3.5 h-3.5 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                  />
-                </svg>
-                PBV Ratio
-              </span>
-              <span className="text-[9px] text-neutral-500 font-mono w-4 h-4 rounded bg-neutral-950 flex items-center justify-center border border-neutral-800/40 cursor-pointer">?</span>
+              {rangePosition !== null ? (
+                <div className="space-y-2 pt-1">
+                  <div className="relative h-2 bg-neutral-950 rounded-full border border-neutral-800/60 overflow-visible">
+                    <div className="h-full bg-gradient-to-r from-rose-500/70 via-amber-400/70 to-emerald-400 rounded-full" style={{ width: `${rangePosition}%` }} />
+                    <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white border-2 border-emerald-400 shadow" style={{ left: `${rangePosition}%` }} />
+                  </div>
+                  <div className="flex justify-between text-[11px] font-mono pt-1">
+                    <div>
+                      <span className="text-neutral-500 block text-[10px] font-sans">52W Low</span>
+                      <span className="text-rose-400 font-bold">Rp {stock.fiftyTwoWeekLow?.toLocaleString("id-ID")}</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-neutral-500 block text-[10px] font-sans">52W High</span>
+                      <span className="text-emerald-400 font-bold">Rp {stock.fiftyTwoWeekHigh?.toLocaleString("id-ID")}</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex justify-between text-xs font-mono text-neutral-400">
+                  <span>Low: {stock.fiftyTwoWeekLow ? `Rp ${stock.fiftyTwoWeekLow.toLocaleString("id-ID")}` : "N/A"}</span>
+                  <span>High: {stock.fiftyTwoWeekHigh ? `Rp ${stock.fiftyTwoWeekHigh.toLocaleString("id-ID")}` : "N/A"}</span>
+                </div>
+              )}
             </div>
-            <span className="text-xs sm:text-sm font-bold mt-2 text-white">{stock.priceToBook ? stock.priceToBook.toFixed(2) : "N/A"}</span>
-            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-3 opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 w-52 p-3 bg-neutral-900/95 border border-neutral-700/50 rounded-xl shadow-2xl backdrop-blur-xl z-50 text-[10px] text-neutral-300 leading-snug">
-              <p className="font-bold text-teal-400 mb-1">Price to Book Value</p>
-              Membandingkan harga saham dengan nilai buku ekuitas perusahaan.
-            </div>
-          </div>
 
-          {/* 52W High */}
-          <div className="relative group bg-neutral-900/20 border border-neutral-800/30 rounded-xl p-4 flex flex-col justify-between hover:border-neutral-700/50 transition">
-            <div className="flex items-center justify-between text-[11px] text-neutral-400">
-              <span className="flex items-center gap-1.5">
-                <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                </svg>
-                52W High
-              </span>
-              <span className="text-[9px] text-neutral-500 font-mono w-4 h-4 rounded bg-neutral-950 flex items-center justify-center border border-neutral-800/40 cursor-pointer">?</span>
-            </div>
-            <span className="text-xs sm:text-sm font-bold mt-2 text-emerald-400">Rp {stock.fiftyTwoWeekHigh ? stock.fiftyTwoWeekHigh.toLocaleString("id-ID") : "N/A"}</span>
-            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-3 opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 w-52 p-3 bg-neutral-900/95 border border-neutral-700/50 rounded-xl shadow-2xl backdrop-blur-xl z-50 text-[10px] text-neutral-300 leading-snug">
-              <p className="font-bold text-emerald-400 mb-1">52-Week High</p>
-              Harga tertinggi saham ini dalam rentang waktu 1 tahun terakhir.
-            </div>
-          </div>
+            {/* Key Statistics Grid */}
+            <div className="bg-neutral-900/20 border border-neutral-800/30 rounded-2xl p-4 sm:p-5 backdrop-blur-md shadow-xl space-y-3">
+              <h2 className="text-xs font-bold text-white uppercase tracking-wider border-b border-neutral-800/40 pb-2.5">Key Statistics</h2>
 
-          {/* 52W Low */}
-          <div className="relative group bg-neutral-900/20 border border-neutral-800/30 rounded-xl p-4 flex flex-col justify-between hover:border-neutral-700/50 transition">
-            <div className="flex items-center justify-between text-[11px] text-neutral-400">
-              <span className="flex items-center gap-1.5">
-                <svg className="w-3.5 h-3.5 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
-                </svg>
-                52W Low
-              </span>
-              <span className="text-[9px] text-neutral-500 font-mono w-4 h-4 rounded bg-neutral-950 flex items-center justify-center border border-neutral-800/40 cursor-pointer">?</span>
-            </div>
-            <span className="text-xs sm:text-sm font-bold mt-2 text-rose-400">Rp {stock.fiftyTwoWeekLow ? stock.fiftyTwoWeekLow.toLocaleString("id-ID") : "N/A"}</span>
-            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-3 opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 w-52 p-3 bg-neutral-900/95 border border-neutral-700/50 rounded-xl shadow-2xl backdrop-blur-xl z-50 text-[10px] text-neutral-300 leading-snug">
-              <p className="font-bold text-rose-400 mb-1">52-Week Low</p>
-              Harga terendah saham ini dalam rentang waktu 1 tahun terakhir.
-            </div>
-          </div>
+              <div className="grid grid-cols-2 gap-2.5 text-xs">
+                <div className="relative group bg-neutral-950/60 border border-neutral-800/40 rounded-xl p-3">
+                  <div className="flex items-center justify-between text-[10px] text-neutral-400 font-sans">
+                    <span>Market Cap</span>
+                    <span className="font-mono text-[9px] text-neutral-500">?</span>
+                  </div>
+                  <div className="font-bold text-white font-mono mt-1 truncate">Rp {(stock.marketCap / 1e9).toLocaleString("id-ID", { maximumFractionDigits: 1 })}B</div>
+                  <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 opacity-0 group-hover:opacity-100 pointer-events-none transition-all w-48 p-2.5 bg-neutral-900/95 border border-neutral-700/50 rounded-xl shadow-2xl z-50 text-[10px] text-neutral-300 font-sans">
+                    Total nilai pasar seluruh saham beredar (Harga × Jumlah Saham).
+                  </div>
+                </div>
 
-          {/* Dividend Yield */}
-          <div className="relative group bg-neutral-900/20 border border-neutral-800/30 rounded-xl p-4 flex flex-col justify-between hover:border-neutral-700/50 transition">
-            <div className="flex items-center justify-between text-[11px] text-neutral-400">
-              <span className="flex items-center gap-1.5">
-                <svg className="w-3.5 h-3.5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                Div Yield
-              </span>
-              <span className="text-[9px] text-neutral-500 font-mono w-4 h-4 rounded bg-neutral-950 flex items-center justify-center border border-neutral-800/40 cursor-pointer">?</span>
+                <div className="relative group bg-neutral-950/60 border border-neutral-800/40 rounded-xl p-3">
+                  <div className="flex items-center justify-between text-[10px] text-neutral-400 font-sans">
+                    <span>P/E Ratio</span>
+                    <span className="font-mono text-[9px] text-neutral-500">?</span>
+                  </div>
+                  <div className="font-bold text-amber-400 font-mono mt-1">{stock.trailingPE ? `${stock.trailingPE.toFixed(2)}x` : "N/A"}</div>
+                  <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 opacity-0 group-hover:opacity-100 pointer-events-none transition-all w-48 p-2.5 bg-neutral-900/95 border border-neutral-700/50 rounded-xl shadow-2xl z-50 text-[10px] text-neutral-300 font-sans">
+                    Rasio harga saham terhadap laba bersih per lembar (EPS).
+                  </div>
+                </div>
+
+                <div className="relative group bg-neutral-950/60 border border-neutral-800/40 rounded-xl p-3">
+                  <div className="flex items-center justify-between text-[10px] text-neutral-400 font-sans">
+                    <span>PBV Ratio</span>
+                    <span className="font-mono text-[9px] text-neutral-500">?</span>
+                  </div>
+                  <div className="font-bold text-teal-400 font-mono mt-1">{stock.priceToBook ? `${stock.priceToBook.toFixed(2)}x` : "N/A"}</div>
+                  <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 opacity-0 group-hover:opacity-100 pointer-events-none transition-all w-48 p-2.5 bg-neutral-900/95 border border-neutral-700/50 rounded-xl shadow-2xl z-50 text-[10px] text-neutral-300 font-sans">
+                    Perbandingan harga saham dengan nilai buku ekuitas perusahaan.
+                  </div>
+                </div>
+
+                <div className="relative group bg-neutral-950/60 border border-neutral-800/40 rounded-xl p-3">
+                  <div className="flex items-center justify-between text-[10px] text-neutral-400 font-sans">
+                    <span>Div Yield</span>
+                    <span className="font-mono text-[9px] text-neutral-500">?</span>
+                  </div>
+                  <div className="font-bold text-cyan-400 font-mono mt-1">{stock.dividendYield ? `${(stock.dividendYield * 100).toFixed(2)}%` : "N/A"}</div>
+                  <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 opacity-0 group-hover:opacity-100 pointer-events-none transition-all w-48 p-2.5 bg-neutral-900/95 border border-neutral-700/50 rounded-xl shadow-2xl z-50 text-[10px] text-neutral-300 font-sans">
+                    Persentase imbal hasil dividen tahunan terhadap harga saham saat ini.
+                  </div>
+                </div>
+              </div>
             </div>
-            <span className="text-xs sm:text-sm font-bold mt-2 text-cyan-400">{stock.dividendYield ? `${(stock.dividendYield * 100).toFixed(2)}%` : "N/A"}</span>
-            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-3 opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto transition-all duration-200 w-52 p-3 bg-neutral-900/95 border border-neutral-700/50 rounded-xl shadow-2xl backdrop-blur-xl z-50 text-[10px] text-neutral-300 leading-snug">
-              <p className="font-bold text-cyan-400 mb-1">Dividend Yield</p>
-              Persentase imbal hasil dividen tahunan terhadap harga saham saat ini.
+
+            {/* Modul Pengisi Ruang di Bawah Key Statistics: Ringkasan Fundamental & Dividen */}
+            <div className="bg-neutral-900/20 border border-neutral-800/30 rounded-2xl p-4 sm:p-5 backdrop-blur-md shadow-xl space-y-3">
+              <div className="flex items-center justify-between border-b border-neutral-800/40 pb-2.5">
+                <h2 className="text-xs font-bold text-white uppercase tracking-wider">Quick Snapshot</h2>
+                {stock.targetMeanPrice && <span className="text-[10px] font-mono text-emerald-400">Target Rp {stock.targetMeanPrice.toLocaleString("id-ID")}</span>}
+              </div>
+
+              <div className="space-y-2 text-[11px] font-mono">
+                <div className="flex justify-between items-center">
+                  <span className="text-neutral-400 font-sans">Profit Margin</span>
+                  <span className="font-bold text-emerald-400">{stock.profitMargins ? `${(stock.profitMargins * 100).toFixed(2)}%` : "N/A"}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-neutral-400 font-sans">Forward P/E</span>
+                  <span className="font-bold text-neutral-200">{stock.forwardPE ? `${stock.forwardPE.toFixed(2)}x` : "N/A"}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-neutral-400 font-sans">Beta</span>
+                  <span className="font-bold text-neutral-200">{stock.beta ? stock.beta.toFixed(2) : "N/A"}</span>
+                </div>
+                <div className="flex justify-between items-center pt-1.5 border-t border-neutral-800/50">
+                  <span className="text-neutral-400 font-sans">Ex-Dividend Date</span>
+                  <span className="font-bold text-cyan-300">{exDateFormatted ?? "Menunggu feed"}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-neutral-400 font-sans">Dividend Pay Date</span>
+                  <span className="font-bold text-cyan-300">{payDateFormatted ?? "Menunggu feed"}</span>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-neutral-800/50 flex items-center justify-between gap-2 text-[10px] font-sans">
+                <a href="#consensus-section" className="text-neutral-400 hover:text-emerald-400 transition">
+                  Konsensus Analis ↓
+                </a>
+                <a href="#news-section" className="text-neutral-400 hover:text-emerald-400 transition">
+                  Berita Emiten ↓
+                </a>
+                {stock.website && (
+                  <a href={stock.website} target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:underline font-medium">
+                    Situs Resmi ↗
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* 3. INTERACTIVE TRADINGVIEW CHART CONTAINER */}
-        <div className="bg-neutral-900/20 border border-neutral-800/30 rounded-2xl p-4 backdrop-blur-md shadow-xl">
-          <StockChart symbol={stock.symbol} />
-        </div>
-
-        {/* 4. ANALYST CONSENSUS & BREAKDOWN BENTO PANEL */}
-        <div className="bg-neutral-900/20 border border-neutral-800/30 rounded-2xl p-5 sm:p-6 backdrop-blur-md shadow-xl flex flex-col lg:flex-row justify-between gap-6">
-          {/* Left Analyst Target Panel */}
+        {/* 3. KONSENSUS ANALIS & TARGET HARGA */}
+        <div id="consensus-section" className="bg-neutral-900/20 border border-neutral-800/30 rounded-2xl p-5 sm:p-6 backdrop-blur-md shadow-xl flex flex-col lg:flex-row justify-between gap-6 scroll-mt-24">
           <div className="lg:w-1/3 space-y-4 border-b lg:border-b-0 lg:border-r border-neutral-800/40 pb-5 lg:pb-0 lg:pr-6 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-3">
@@ -286,7 +310,6 @@ export default function StockDetailClient({ symbol }: StockDetailClientProps) {
                     <span>🎯</span> Konsensus Analis
                   </h2>
 
-                  {/* Tooltip Disclaimer */}
                   <div className="relative group/tooltip inline-block">
                     <button
                       type="button"
@@ -335,7 +358,6 @@ export default function StockDetailClient({ symbol }: StockDetailClientProps) {
             </div>
           </div>
 
-          {/* Right Progress Breakdown Bar Panel */}
           <div className="lg:w-2/3 flex flex-col justify-center gap-3">
             <span className="text-xs font-bold text-neutral-300 uppercase tracking-wider">Sebaran Rekomendasi Analis:</span>
 
@@ -377,7 +399,12 @@ export default function StockDetailClient({ symbol }: StockDetailClientProps) {
                     <span className="font-mono text-rose-400 font-bold">{(trend?.sell || 0) + (trend?.strongSell || 0)} Analis</span>
                   </div>
                   <div className="w-full h-2 bg-neutral-950 rounded-full overflow-hidden border border-neutral-900/40">
-                    <div className="h-full bg-rose-500 transition-all duration-500" style={{ width: `${(((trend?.sell || 0) + (trend?.strongSell || 0)) / totalVotes) * 100}%` }}></div>
+                    <div
+                      className="h-full bg-rose-500 transition-all duration-500"
+                      style={{
+                        width: `${(((trend?.sell || 0) + (trend?.strongSell || 0)) / totalVotes) * 100}%`,
+                      }}
+                    ></div>
                   </div>
                 </div>
               </div>
@@ -387,8 +414,8 @@ export default function StockDetailClient({ symbol }: StockDetailClientProps) {
           </div>
         </div>
 
-        {/* 5. EMITEN NEWS STREAM GRID */}
-        <div className="bg-neutral-900/20 border border-neutral-800/30 rounded-2xl p-5 sm:p-6 backdrop-blur-md shadow-xl space-y-4">
+        {/* 4. BERITA EMITEN */}
+        <div id="news-section" className="bg-neutral-900/20 border border-neutral-800/30 rounded-2xl p-5 sm:p-6 backdrop-blur-md shadow-xl space-y-4 scroll-mt-24">
           <h2 className="text-xs font-bold text-white uppercase tracking-wider border-b border-neutral-800/40 pb-3 flex items-center gap-2">
             <span>📰</span> Kabar Stream & Sentimen Menyorot {stock.symbol}
           </h2>
@@ -419,9 +446,8 @@ export default function StockDetailClient({ symbol }: StockDetailClientProps) {
           )}
         </div>
 
-        {/* 6. PROFILE & DETAILED FINANCIAL STATISTICS (SPLIT BENTO) */}
+        {/* 5. PROFIL BISNIS & TELEMETRI RASIO FINANSIAL */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Left Description Card */}
           <div className="lg:col-span-2 bg-neutral-900/20 border border-neutral-800/30 rounded-2xl p-5 sm:p-6 backdrop-blur-md shadow-xl flex flex-col justify-between">
             <div>
               <h2 className="text-xs font-bold text-white uppercase tracking-wider mb-3 border-b border-neutral-800/40 pb-2.5 flex items-center gap-2">
@@ -439,7 +465,6 @@ export default function StockDetailClient({ symbol }: StockDetailClientProps) {
             )}
           </div>
 
-          {/* Right Complete Financial Stats Table */}
           <div className="bg-neutral-900/20 border border-neutral-800/30 rounded-2xl p-5 sm:p-6 backdrop-blur-md shadow-xl flex flex-col justify-between">
             <div>
               <h2 className="text-xs font-bold text-white uppercase tracking-wider mb-3 border-b border-neutral-800/40 pb-2.5 flex items-center gap-2">
